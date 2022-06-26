@@ -10,7 +10,7 @@ import (
 
 func newContainerDeleteCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete ${container_name}",
+		Use:   "delete ${container_name} ...",
 		Short: "deletes a container",
 		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (opts []string, directive cobra.ShellCompDirective) {
 			directive = cobra.ShellCompDirectiveDefault
@@ -44,12 +44,15 @@ func newContainerDeleteCommand() *cobra.Command {
 }
 
 func containerDeleteMain(ac *state.AppContext, cmd *cobra.Command, args []string) {
-	containerName := args[0]
-	err := ac.Blob.DeleteContainer(ac.Context, containerName)
-	if err != nil {
-		ac.Error <- err
-	} else {
-		logrus.WithField("container", containerName).Info("deleted container")
-		ac.Cancel()
+	for i := range args {
+		containerName := args[i]
+		err := ac.Blob.DeleteContainer(ac.Context, containerName)
+		if err != nil {
+			ac.Error <- err
+			return
+		} else {
+			logrus.WithField("container", containerName).Info("deleted container")
+		}
 	}
+	ac.Cancel()
 }

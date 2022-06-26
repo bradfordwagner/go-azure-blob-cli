@@ -10,7 +10,7 @@ import (
 
 func newContainerCreateCommand() *cobra.Command {
 	containerCreate := &cobra.Command{
-		Use:   "create ${container_name}",
+		Use:   "create ${container_name} ...",
 		Short: "creates a container if does not exist",
 		Args: func(cmd *cobra.Command, args []string) (err error) {
 			// check if container name is supplied
@@ -29,12 +29,15 @@ func newContainerCreateCommand() *cobra.Command {
 }
 
 func containerCreateMain(ac *state.AppContext, cmd *cobra.Command, args []string) {
-	containerName := args[0]
-	err := ac.Blob.CreateContainer(ac.Context, containerName)
-	if err != nil {
-		ac.Error <- err
-	} else {
-		logrus.WithField("container", containerName).Info("created container")
-		ac.Cancel()
+	for i := range args {
+		containerName := args[i]
+		err := ac.Blob.CreateContainer(ac.Context, containerName)
+		if err != nil {
+			ac.Error <- err
+			return
+		} else {
+			logrus.WithField("container", containerName).Info("created container")
+		}
 	}
+	ac.Cancel()
 }
