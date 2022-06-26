@@ -12,12 +12,12 @@ var containerList = &cobra.Command{
 	Short: "list all containers for a blob storage account",
 	Run: func(cmd *cobra.Command, args []string) {
 		ac := state.NewAppContext()
-		blobListMain(ac, cmd, args)
-		graceful.AwaitLogError(ac.Error)
+		containerListMain(ac, cmd, args)
+		graceful.AwaitLogError(ac.Cancel, ac.Error)
 	},
 }
 
-func blobListMain(ac *state.AppContext, cmd *cobra.Command, args []string) {
+func containerListMain(ac *state.AppContext, cmd *cobra.Command, args []string) {
 	containers, err := ac.Blob.ListContainers(ac.Context)
 	if err != nil {
 		ac.Error <- err

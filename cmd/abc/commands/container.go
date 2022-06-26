@@ -12,5 +12,6 @@ func NewContainerCommand() (container *cobra.Command) {
 
 	// add sub commands
 	container.AddCommand(containerList)
+	container.AddCommand(containerCreate)
 	return
 }

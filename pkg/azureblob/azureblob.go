@@ -48,17 +48,11 @@ func (a *AzureBlob) authenticate() (err error) {
 	return
 }
 func (a *AzureBlob) CreateContainer(ctx context.Context, name string) (err error) {
-	panic("not done")
-	// get existing containers
-	//containers, err := a.ListContainers()
-	//if err != nil {
-	//	return
-	//}
-
-	// only create the container if it dne
-	//if exists, _ := containers[name]; !exists {
-	//	_, err = a.serviceClient.CreateContainer(a.ac.Context, name, nil)
-	//}
+	err = a.authenticate()
+	if err != nil {
+		return
+	}
+	_, err = a.serviceClient.CreateContainer(ctx, name, nil)
 	return
 }
 
