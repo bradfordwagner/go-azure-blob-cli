@@ -47,12 +47,22 @@ func (a *AzureBlob) authenticate() (err error) {
 
 	return
 }
+
 func (a *AzureBlob) CreateContainer(ctx context.Context, name string) (err error) {
 	err = a.authenticate()
 	if err != nil {
 		return
 	}
 	_, err = a.serviceClient.CreateContainer(ctx, name, nil)
+	return
+}
+
+func (a *AzureBlob) DeleteContainer(ctx context.Context, name string) (err error) {
+	err = a.authenticate()
+	if err != nil {
+		return
+	}
+	_, err = a.serviceClient.DeleteContainer(ctx, name, nil)
 	return
 }
 

@@ -4,6 +4,7 @@ import (
 	"github.com/bradfordwagner/go-azure-blob-cli/pkg/graceful"
 	"github.com/bradfordwagner/go-azure-blob-cli/pkg/state"
 	"github.com/spf13/cobra"
+	"sort"
 	"strings"
 )
 
@@ -31,6 +32,7 @@ func containerListMain(ac *state.AppContext, cmd *cobra.Command, args []string) 
 	if err != nil {
 		ac.Error <- err
 	} else {
+		sort.Strings(containers)
 		if listFlag {
 			newLineJoin(containers)
 		} else {
