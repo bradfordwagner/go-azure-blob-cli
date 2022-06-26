@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-var BlobList = &cobra.Command{
-	Use:   "bls",
-	Short: "blob list",
+var containerList = &cobra.Command{
+	Use:   "list",
+	Short: "list all containers for a blob storage account",
 	Run: func(cmd *cobra.Command, args []string) {
 		ac := state.NewAppContext()
 		blobListMain(ac, cmd, args)
