@@ -3,6 +3,17 @@
 
 ## Commands
 ```bash
-abc bls # list storage account containers
+abc blob list   # -l -c
+abc blob upload # -f -c -t
+abc container create
+abc container delete
+abc container list
+
+# TODO
+abc blob delete
+abc blob download
+abc blob upload        # completion for upload file path
+abc directory delete   # delete all files matching prefix
+abc directory download # get all files on a prefix
 ```
 

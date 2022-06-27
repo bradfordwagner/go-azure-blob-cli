@@ -9,7 +9,7 @@ import (
 )
 
 func newContainerListCommand() *cobra.Command {
-	containerList := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "list all containers for a blob storage account",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -20,8 +20,9 @@ func newContainerListCommand() *cobra.Command {
 	}
 
 	// flags
+	createListFlag(cmd)
 
-	return containerList
+	return cmd
 }
 
 func containerListMain(ac *state.AppContext, cmd *cobra.Command, args []string) {
