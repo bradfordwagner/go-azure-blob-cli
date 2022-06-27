@@ -215,20 +215,28 @@ func (a *AzureBlob) Download(ctx context.Context, container, blobPath, outputPat
 	return
 }
 
-func (a *AzureBlob) Delete(ctx context.Context, container, file string) (err error) {
+func (a *AzureBlob) Delete(ctx context.Context, container, blobPath string) (err error) {
 	// list all the files with specified file name
 	// then delete all other matches
-	//files, err := a.ListFiles(ctx, container, file)
-	//for file := range files {
-	//	// initialize client
-	//	containerClient := a.serviceClient.NewContainerClient(container)
-	//	blobClient := containerClient.NewBlobClient(file)
+	err = a.authenticate()
+	if err != nil {
+		return
+	}
 
-	//	// delete file
-	//	_, err = blobClient.Delete(ctx, nil)
-	//	if err != nil {
-	//		return
-	//	}
-	//}
+	fileProperties, err := a.ListFilesWithProperties(ctx, container, blobPath)
+	if err != nil {
+		return
+	}
+
+	// delete all the childrens
+	containerClient := a.serviceClient.NewContainerClient(container)
+	for _, property := range fileProperties {
+		blobClient := containerClient.NewBlobClient(property.Name)
+		_, err = blobClient.Delete(ctx, &azblob.DeleteBlobOptions{})
+		if err != nil {
+			return
+		}
+	}
+
 	return
 }

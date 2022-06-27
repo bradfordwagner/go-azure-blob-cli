@@ -21,6 +21,7 @@ func NewBlobCommand() (cmd *cobra.Command) {
 	cmd.AddCommand(newBlobUploadCommand())
 	cmd.AddCommand(newBlobListCommand())
 	cmd.AddCommand(newBlobDownloadCommand())
+	cmd.AddCommand(newBlobDeleteCommand())
 
 	return
 }

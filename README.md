@@ -10,10 +10,6 @@ abc container delete
 abc container list
 abc blob download
 abc blob upload
-
-# TODO
 abc blob delete
-abc directory delete   # delete all files matching prefix
-abc directory download # get all files on a prefix
 ```
 
