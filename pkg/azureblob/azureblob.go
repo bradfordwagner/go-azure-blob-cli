@@ -1,12 +1,13 @@
 package azureblob
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
+	"github.com/bradfordwagner/go-azure-blob-cli/pkg/util"
 	"github.com/dustin/go-humanize"
 	"github.com/sirupsen/logrus"
+	"os"
 	"sort"
 )
 
@@ -174,28 +175,41 @@ func (a *AzureBlob) CreateDirectory(ctx context.Context, container, file string)
 	return
 }
 
-/*
-LoadFile - pulls a file from blob storage
-*/
-func (a *AzureBlob) LoadFile(ctx context.Context, container, file string) (b []byte, err error) {
+func (a *AzureBlob) Download(ctx context.Context, container, blobPath, outputPath string) (err error) {
 	err = a.authenticate()
-	if err != nil {
-		return nil, err
-	}
-
-	// initialize client
-	containerClient := a.serviceClient.NewContainerClient(container)
-	blobClient := containerClient.NewBlobClient(file)
-
-	// download from client to buffer
-	res, err := blobClient.Download(ctx, nil)
 	if err != nil {
 		return
 	}
-	buffer, reader := new(bytes.Buffer), res.Body(nil)
-	_, err = buffer.ReadFrom(reader)
-	if err == nil {
-		b = buffer.Bytes()
+
+	fileProperties, err := a.ListFilesWithProperties(ctx, container, blobPath)
+	if err != nil {
+		return
+	}
+
+	containerClient := a.serviceClient.NewContainerClient(container)
+	for _, property := range fileProperties {
+		// create dir
+		outputFilePath := fmt.Sprintf("%s/%s", outputPath, property.Name)
+		if outputPath == "" {
+			outputFilePath = property.Name
+		}
+		util.CreateDirForFile(outputFilePath)
+
+		logrus.WithFields(property.LogrusStruct()).Info("downloading file: ", outputFilePath)
+
+		// open file handle
+		var f *os.File
+		f, err = os.OpenFile(outputFilePath, os.O_RDWR|os.O_CREATE, 0777)
+		if err != nil {
+			return
+		}
+
+		// download file
+		client := containerClient.NewBlockBlobClient(property.Name)
+		err = client.DownloadBlobToFile(ctx, 0, 0, f, azblob.HighLevelDownloadFromBlobOptions{})
+		if err != nil {
+			return
+		}
 	}
 
 	return
