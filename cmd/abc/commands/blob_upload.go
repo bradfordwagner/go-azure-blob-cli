@@ -23,6 +23,7 @@ func newBlobUploadCommand() *cobra.Command {
 			}
 			return
 		},
+		ValidArgsFunction: listBlobsValidArgsFunction,
 		Run: func(cmd *cobra.Command, args []string) {
 			ac := state.NewAppContext()
 			blobUploadMain(ac, cmd, args)
