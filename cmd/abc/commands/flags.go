@@ -10,6 +10,7 @@ var (
 	flagContainer string
 	flagRawText   string
 	flagFilePath  string
+	flagList      bool
 )
 
 func createDirectoryContainerFlag(cmd *cobra.Command) {
@@ -33,4 +34,8 @@ func createRawTextFlag(cmd *cobra.Command) {
 }
 func createFilePathFlag(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVarP(&flagFilePath, "file", "f", "", "file path")
+}
+
+func createListFlag(cmd *cobra.Command) {
+	cmd.PersistentFlags().BoolVarP(&flagList, "list", "l", false, "indicate new line per input")
 }

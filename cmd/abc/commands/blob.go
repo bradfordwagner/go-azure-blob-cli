@@ -15,6 +15,7 @@ func NewBlobCommand() (cmd *cobra.Command) {
 
 	// add sub commands
 	cmd.AddCommand(newBlobUploadCommand())
+	cmd.AddCommand(newBlobListCommand())
 
 	return
 }

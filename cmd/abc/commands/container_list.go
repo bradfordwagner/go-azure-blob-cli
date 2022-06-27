@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-var listFlag bool
-
 func newContainerListCommand() *cobra.Command {
 	containerList := &cobra.Command{
 		Use:   "list",
@@ -22,7 +20,6 @@ func newContainerListCommand() *cobra.Command {
 	}
 
 	// flags
-	containerList.PersistentFlags().BoolVarP(&listFlag, "list", "l", false, "indicate new line per container")
 
 	return containerList
 }
@@ -33,7 +30,7 @@ func containerListMain(ac *state.AppContext, cmd *cobra.Command, args []string) 
 		ac.Error <- err
 	} else {
 		sort.Strings(containers)
-		if listFlag {
+		if flagList {
 			newLineJoin(containers)
 		} else {
 			spaceJoin(containers)

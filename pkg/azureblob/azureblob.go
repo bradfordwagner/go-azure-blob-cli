@@ -5,7 +5,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
+	"github.com/dustin/go-humanize"
 	"github.com/sirupsen/logrus"
+	"sort"
 )
 
 // AzureBlob
@@ -91,7 +93,18 @@ func (a *AzureBlob) ListContainers(ctx context.Context) (containerNames []string
 	return
 }
 
-func (a *AzureBlob) ListFiles(ctx context.Context, container, prefix string) (res map[string]bool, err error) {
+type FileProperties struct {
+	Name string
+	Size uint64
+}
+
+func (fp FileProperties) LogrusStruct() map[string]interface{} {
+	return map[string]interface{}{
+		"size": humanize.Bytes(fp.Size),
+	}
+}
+
+func (a *AzureBlob) ListFilesWithProperties(ctx context.Context, container, prefix string) (fileProperties []FileProperties, err error) {
 	err = a.authenticate()
 	if err != nil {
 		return
@@ -100,21 +113,39 @@ func (a *AzureBlob) ListFiles(ctx context.Context, container, prefix string) (re
 	// setup container client
 	containerClient := a.serviceClient.NewContainerClient(container)
 
-	// pull blobs from hierarchy based on prefix
-	hierarchy := containerClient.ListBlobsHierarchy("", &azblob.ContainerListBlobHierarchySegmentOptions{
-		Prefix: &prefix,
-	})
+	// allow prefix override
+	opts := &azblob.ContainerListBlobHierarchySegmentOptions{}
+	if prefix != "" {
+		opts.Prefix = &prefix
+	}
+
+	// pull blobs from hierarchy based on prefix if paramaterized
+	hierarchy := containerClient.ListBlobsHierarchy("", opts)
 
 	// parse into result map
-	res = make(map[string]bool)
 	for hierarchy.NextPage(ctx) {
 		b := hierarchy.PageResponse()
 		for _, item := range b.Segment.BlobItems {
-			name := *item.Name
-			res[name] = true
+			fileProperties = append(fileProperties, FileProperties{
+				Name: *item.Name,
+				Size: uint64(*item.Properties.ContentLength),
+			})
 		}
 	}
 
+	// sort
+	sort.Slice(fileProperties, func(i, j int) bool {
+		return fileProperties[i].Name < fileProperties[j].Name
+	})
+
+	return
+}
+
+func (a *AzureBlob) ListFilesAsStrings(ctx context.Context, container, prefix string) (res []string, err error) {
+	properties, err := a.ListFilesWithProperties(ctx, container, prefix)
+	for _, property := range properties {
+		res = append(res, property.Name)
+	}
 	return
 }
 
@@ -173,17 +204,17 @@ func (a *AzureBlob) LoadFile(ctx context.Context, container, file string) (b []b
 func (a *AzureBlob) Delete(ctx context.Context, container, file string) (err error) {
 	// list all the files with specified file name
 	// then delete all other matches
-	files, err := a.ListFiles(ctx, container, file)
-	for file := range files {
-		// initialize client
-		containerClient := a.serviceClient.NewContainerClient(container)
-		blobClient := containerClient.NewBlobClient(file)
+	//files, err := a.ListFiles(ctx, container, file)
+	//for file := range files {
+	//	// initialize client
+	//	containerClient := a.serviceClient.NewContainerClient(container)
+	//	blobClient := containerClient.NewBlobClient(file)
 
-		// delete file
-		_, err = blobClient.Delete(ctx, nil)
-		if err != nil {
-			return
-		}
-	}
+	//	// delete file
+	//	_, err = blobClient.Delete(ctx, nil)
+	//	if err != nil {
+	//		return
+	//	}
+	//}
 	return
 }
