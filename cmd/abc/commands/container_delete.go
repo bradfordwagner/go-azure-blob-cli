@@ -10,23 +10,9 @@ import (
 
 func newContainerDeleteCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete ${container_name} ...",
-		Short: "deletes a container",
-		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) (opts []string, directive cobra.ShellCompDirective) {
-			directive = cobra.ShellCompDirectiveDefault
-
-			// run list for options
-			ac := state.NewAppContext()
-			opts, err := ac.Blob.ListContainers(ac.Context)
-			if err != nil {
-				logrus.WithError(err).Panic("could not list containers for completion!")
-			} else {
-				ac.Cancel()
-			}
-			graceful.AwaitLogError(ac.Cancel, ac.Error)
-
-			return
-		},
+		Use:               "delete ${container_name} ...",
+		Short:             "deletes a container",
+		ValidArgsFunction: listContainersValidArgsFunction,
 		Args: func(cmd *cobra.Command, args []string) (err error) {
 			// check if container name is supplied
 			if len(args) == 0 || args[0] == "" {

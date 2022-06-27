@@ -12,6 +12,7 @@ type Config struct {
 	LogLevel           string `env:"LOG_LEVEL,default=info"`
 	StorageAccountName string `env:"AZURE_STORAGE_ACCOUNT_NAME,default=blubblubblub"`
 	StorageAccountKey  string `env:"AZURE_STORAGE_ACCOUNT_KEY"`
+	ContainerName      string `env:"AZURE_STORAGE_CONTAINER_NAME"`
 }
 
 // New - gives a new config

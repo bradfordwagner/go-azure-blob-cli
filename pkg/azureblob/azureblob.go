@@ -123,16 +123,23 @@ WriteFile writes to a file in blob storage backend
 the file path itself can be nested for example doa_2022_04_01/partitions/1/p1.buf
 */
 func (a *AzureBlob) WriteFile(ctx context.Context, container, file string, b []byte) (err error) {
-	err = a.CreateContainer(ctx, container)
-	if err != nil {
-		return
-	}
+	err = a.authenticate()
 
 	// write to blob storage
 	containerClient := a.serviceClient.NewContainerClient(container)
 	blobClient := containerClient.NewBlockBlobClient(file)
 	_, err = blobClient.UploadBufferToBlockBlob(ctx, b, azblob.HighLevelUploadToBlockBlobOption{})
 
+	return
+}
+
+/*
+WriteFile writes to a file in blob storage backend
+the file path itself can be nested for example doa_2022_04_01/partitions/1/p1.buf
+*/
+func (a *AzureBlob) CreateDirectory(ctx context.Context, container, file string) (err error) {
+	var b []byte
+	err = a.WriteFile(ctx, container, file, b)
 	return
 }
 
