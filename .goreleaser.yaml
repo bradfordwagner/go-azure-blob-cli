@@ -1,6 +1,7 @@
 builds:
   - main: ./cmd/abc
-    id: ab
+    binary: abc
+    id: abc
     env:
       - CGO_ENABLED=0
     goos:
