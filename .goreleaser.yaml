@@ -1,5 +1,5 @@
 builds:
-  - id: abc
+  - id: cli
     main: ./cmd/abc
     binary: abc
     goos:
