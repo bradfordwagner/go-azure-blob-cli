@@ -1,9 +1,7 @@
 builds:
-  - main: ./cmd/abc
+  - id: cli
+    main: ./cmd/abc
     binary: abc
-    id: abc
-    env:
-      - CGO_ENABLED=0
     goos:
       - linux
       - windows
