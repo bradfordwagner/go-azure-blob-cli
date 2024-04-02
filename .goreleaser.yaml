@@ -1,6 +1,8 @@
 builds:
   - id: cli
     main: ./cmd/abc
+    env:
+      - CGO_ENABLED=0
     binary: abc
     goos:
       - linux
